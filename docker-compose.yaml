@@ -7,7 +7,7 @@ services:
       shipyard.route: '/'
     build: '.'
     environment:
-      DATABASE_URL: 'postgres://obscure-user:obscure-password@postgres/app'
+      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack/app'
       DEV: ${DEV}
       FLASK_DEBUG: '1'
       LOCALSTACK_HOST: 'localstack'
@@ -21,9 +21,12 @@ services:
   worker:
     labels:
       shipyard.before: 'poetry run flask db upgrade'
+    depends_on:
+      - localstack
     build: '.'
     environment:
-      DATABASE_URL: 'postgres://obscure-user:obscure-password@postgres/app'
+      # DATABASE_URL: 'postgres://obscure-user:obscure-password@postgres/app'
+      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack/app'
       DEV: ${DEV}
       FLASK_DEBUG: '1'
       LOCALSTACK_HOST: 'localstack'
@@ -33,17 +36,17 @@ services:
       - './migrations:/srv/migrations'
       - './src:/srv/src:ro'
 
-  postgres:
-    image: 'postgres:9.6-alpine'
-    environment:
-      POSTGRES_USER: 'obscure-user'
-      POSTGRES_PASSWORD: 'obscure-password'
-      POSTGRES_DB: 'app'
-      PGDATA: '/var/lib/postgresql/data/pgdata'
-    volumes:
-      - 'postgres:/var/lib/postgresql/data'
-    ports:
-      - '5432'
+  # postgres:
+  #   image: 'postgres:9.6-alpine'
+  #   environment:
+  #     POSTGRES_USER: 'obscure-user'
+  #     POSTGRES_PASSWORD: 'obscure-password'
+  #     POSTGRES_DB: 'app'
+  #     PGDATA: '/var/lib/postgresql/data/pgdata'
+  #   volumes:
+  #     - 'postgres:/var/lib/postgresql/data'
+  #   ports:
+  #     - '5432'
 
   # redis:
   #   image: 'redis:5.0-alpine'
