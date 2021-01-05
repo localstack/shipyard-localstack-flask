@@ -7,7 +7,7 @@ services:
       shipyard.route: '/'
     build: '.'
     environment:
-      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack/app'
+      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack:4514/test'
       DEV: ${DEV}
       FLASK_DEBUG: '1'
       LOCALSTACK_HOST: 'localstack'
@@ -25,8 +25,7 @@ services:
       - localstack
     build: '.'
     environment:
-      # DATABASE_URL: 'postgres://obscure-user:obscure-password@postgres/app'
-      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack/app'
+      DATABASE_URL: 'postgres://obscure-user:obscure-password@localstack:4514/test'
       DEV: ${DEV}
       FLASK_DEBUG: '1'
       LOCALSTACK_HOST: 'localstack'
@@ -35,23 +34,6 @@ services:
       - './filesystem/entrypoints:/entrypoints:ro'
       - './migrations:/srv/migrations'
       - './src:/srv/src:ro'
-
-  # postgres:
-  #   image: 'postgres:9.6-alpine'
-  #   environment:
-  #     POSTGRES_USER: 'obscure-user'
-  #     POSTGRES_PASSWORD: 'obscure-password'
-  #     POSTGRES_DB: 'app'
-  #     PGDATA: '/var/lib/postgresql/data/pgdata'
-  #   volumes:
-  #     - 'postgres:/var/lib/postgresql/data'
-  #   ports:
-  #     - '5432'
-
-  # redis:
-  #   image: 'redis:5.0-alpine'
-  #   ports:
-  #     - '6379'
 
   localstack:
     image: 'localstack/localstack'
@@ -63,6 +45,3 @@ services:
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
     volumes:
       - ./initaws.sh:/docker-entrypoint-initaws.d/initaws.sh
-
-volumes:
-  postgres:
