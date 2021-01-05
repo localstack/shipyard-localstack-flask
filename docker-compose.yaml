@@ -45,16 +45,21 @@ services:
     ports:
       - '5432'
 
-  redis:
-    image: 'redis:5.0-alpine'
-    ports:
-      - '6379'
+  # redis:
+  #   image: 'redis:5.0-alpine'
+  #   ports:
+  #     - '6379'
 
   localstack:
     image: 'localstack/localstack'
     ports:
       - '4566:4566'
+      - '4510-4530:4510-4530'
       - '4571:4571'
+    environment:
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
+    volumes:
+      - ./initaws.sh:/docker-entrypoint-initaws.d/initaws.sh
 
 volumes:
   postgres:

@@ -15,7 +15,9 @@ class Settings:
     # General
     DEV = Parse.bool('DEV')
     REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
-    REDIS_URL = f'redis://{REDIS_HOST}:6379'
+    # REDIS_URL = f'redis://{REDIS_HOST}:6379'
+    # REDIS_URL = f'redis://{REDIS_HOST}:4513'
+    REDIS_URL = f'redis://localstack:4513'
 
     # Database
     AES_SECRET_KEY = os.getenv('AES_SECRET_KEY', 'fake-aes-key')
