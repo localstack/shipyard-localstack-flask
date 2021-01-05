@@ -37,7 +37,8 @@ class Application:
         self.db.init_app(self.flask_app)
 
         # Init Flask-Migrate
-        u.wait_for_service('postgres', 5432, timeout=30.0)
+        # u.wait_for_service('postgres', 5432, timeout=30.0)
+        u.wait_for_service('localstack', 4514, timeout=120.0)
         self.migrate = Migrate(self.flask_app, self.db)
 
     def init_routes(self):
