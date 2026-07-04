@@ -51,7 +51,10 @@ services:
       - '6379'
 
   localstack:
-    image: 'localstack/localstack'
+    # Pinned to a free Community edition release. The unpinned/`latest` tag now
+    # resolves to a build that requires a paid LOCALSTACK_AUTH_TOKEN and exits
+    # (code 55) without one, which breaks the S3 (/files) demo flow.
+    image: 'localstack/localstack:3.8.1'
     ports:
       - '4566:4566'
       - '4571:4571'

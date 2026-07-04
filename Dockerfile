@@ -30,7 +30,14 @@ RUn apk add --update --no-cache \
     #cd .. && rm -rf watchman
 
 # Install poetry
-RUN pip install poetry
+# Pin to 1.1.x to match the committed poetry.lock (lock-version 1.1) and avoid
+# pulling in modern Poetry's rapidfuzz dependency, which has no musllinux wheel
+# for cp38 and otherwise compiles from source (very slow) on this Alpine base.
+# Pre-install cryptography 2.8 (the version pinned in poetry.lock, builds against
+# the openssl-dev already installed above) so that Poetry's keyring/SecretStorage
+# dependency does not pull the latest cryptography, which needs setuptools>=77 and
+# Rust and cannot build on this Python 3.8 image.
+RUN pip install "cryptography==2.8" && pip install "poetry==1.1.15"
 
 # Create an app user, prepare permissions, and run as the user
 RUN adduser -S app
@@ -39,6 +46,12 @@ RUN mkdir -p /var/run/celery && \
 USER app
 
 # Install Python dependencies
+# Install into the system interpreter instead of a Poetry-managed virtualenv.
+# The virtualenv that Poetry seeds ships a newer setuptools whose
+# canonicalize_version(strip_trailing_zero=...) call cannot build the 2020-era
+# sdists pinned here (psycopg2 2.8.4, uwsgi 2.0.18, SQLAlchemy-Utils 0.36.3),
+# whereas the base image's older system setuptools builds them fine.
+RUN poetry config virtualenvs.create false
 ADD pyproject.toml poetry.lock ./
 RUN poetry install
 
@@ -50,6 +63,12 @@ RUN poetry install
 
 # Add system files
 ADD filesystem /
+
+# With virtualenvs.create=false and a non-root user, Poetry installs packages
+# (and their console scripts such as flask/celery/uwsgi) into the user site at
+# /home/app/.local, which is not on PATH by default. Add it so `poetry run flask`
+# and the entrypoint scripts can find these executables.
+ENV PATH="/home/app/.local/bin:${PATH}"
 
 # Set the default command
 ENV FLASK_APP src/entry:flask_app
